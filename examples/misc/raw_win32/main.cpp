@@ -54,7 +54,7 @@ struct Window : cuiui::WindowState {
 int main() {
     using UiContext = cuiui::platform::win32::Context<Window>;
     UiContext ui;
-    ui.window({.id = "w", .title = "Raw Win32 Window", .size_x = 400, .size_y = 400});
+    ui.window({.id = "w", .title = "Raw Win32 Window", .size{400, 400}});
 
     while (true) {
         auto w = ui.window({.id = "w"});

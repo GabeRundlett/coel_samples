@@ -105,7 +105,6 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader_program_id);
         glBindVertexArray(vao_id);
-        glUniform1i(1, 0);
         glActiveTexture(GL_TEXTURE0 + 0);
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);

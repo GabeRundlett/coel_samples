@@ -38,11 +38,13 @@ target_include_directories(stb_interface INTERFACE ${STB_INCLUDE_DIRS})
 add_library(stb::stb ALIAS stb_interface)
 
 add_example(1_simple
+    CONSOLE_APP
     FOLDER 1_getting_started 1_window
     LIBS
         cuiui::cuiui
 )
 add_example(gl
+    CONSOLE_APP
     FOLDER 1_getting_started 1_window 2_clear
     LIBS
         cuiui::cuiui
@@ -50,12 +52,14 @@ add_example(gl
         glad::glad
 )
 add_example(vk
+    CONSOLE_APP
     FOLDER 1_getting_started 1_window 2_clear
     LIBS
         cuiui::cuiui
         coel::coel
 )
 add_example(gl
+    CONSOLE_APP
     FOLDER 1_getting_started 2_drawing 1_simple_triangle
     LIBS
         cuiui::cuiui
@@ -63,12 +67,14 @@ add_example(gl
         glad::glad
 )
 add_example(vk
+    CONSOLE_APP
     FOLDER 1_getting_started 2_drawing 1_simple_triangle
     LIBS
         cuiui::cuiui
         coel::coel
 )
 add_example(gl
+    CONSOLE_APP
     FOLDER 1_getting_started 2_drawing 2_textured_quad
     LIBS
         cuiui::cuiui
@@ -77,6 +83,7 @@ add_example(gl
         stb::stb
 )
 add_example(vk
+    CONSOLE_APP
     FOLDER 1_getting_started 2_drawing 2_textured_quad
     LIBS
         cuiui::cuiui
@@ -85,6 +92,7 @@ add_example(vk
 )
 
 add_example(glvk
+    CONSOLE_APP
     FOLDER misc
     LIBS
         coel::coel
@@ -92,6 +100,7 @@ add_example(glvk
         glad::glad
 )
 add_example(raw_win32
+    CONSOLE_APP
     FOLDER misc
     CONSOLE_APP
     LIBS

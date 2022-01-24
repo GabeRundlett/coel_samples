@@ -16,10 +16,10 @@ const char *const frag_src = R"(
 #version 460 core
 layout(location = 0) in vec2 v_tex;
 layout(location = 0) out vec4 o_col;
-layout(binding = 1, location = 1) uniform sampler2D tex;
+layout(binding = 0) uniform sampler2D tex;
 void main() {
     o_col = texture(tex, v_tex);
-    // o_col.w = 1;
+    o_col.w = 1;
     // o_col = vec4(v_tex, 0, 1);
 })";
 

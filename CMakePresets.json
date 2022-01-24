@@ -32,6 +32,21 @@
       }
     },
     {
+      "name": "ninja_vcpkg_release_Windows",
+      "displayName": "ninja_vcpkg_release_Windows",
+      "inherits": "defaults",
+      "generator": "Ninja",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
       "name": "ninja_vcpkg_debug_Linux",
       "displayName": "ninja_vcpkg_debug_Linux",
       "inherits": "defaults",
