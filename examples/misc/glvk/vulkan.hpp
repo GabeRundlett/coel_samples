@@ -1230,9 +1230,7 @@ struct VulkanApp {
             .clearValueCount = 2,
             .pClearValues = clear_values,
         };
-        VkResult err;
-        err = vkBeginCommandBuffer(cmd_buf, &cmd_buf_info);
-        assert(!err);
+        vkBeginCommandBuffer(cmd_buf, &cmd_buf_info);
         vkCmdBeginRenderPass(cmd_buf, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.pipeline.handle);
         vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.pipeline.layout, 0, 1, &vk.descriptor_set, 0, nullptr);
@@ -1252,9 +1250,9 @@ struct VulkanApp {
         vkCmdSetScissor(cmd_buf, 0, 1, &scissor);
         VkDeviceSize offsets[]{0};
         vkCmdBindVertexBuffers(cmd_buf, 0, 1, &vk.scene_vbo, offsets);
-        vkCmdDraw(cmd_buf, scene_vertices.size(), 1, 0, 0);
+        vkCmdDraw(cmd_buf, static_cast<uint32_t>(scene_vertices.size()), 1, 0, 0);
         vkCmdBindVertexBuffers(cmd_buf, 0, 1, &vk.ui_vbo, offsets);
-        vkCmdDraw(cmd_buf, ui_vertices.size(), 1, 0, 0);
+        vkCmdDraw(cmd_buf, static_cast<uint32_t>(ui_vertices.size()), 1, 0, 0);
         vkCmdEndRenderPass(cmd_buf);
         if (vk.separate_present_queue) {
             VkImageMemoryBarrier image_ownership_barrier = {
@@ -1271,8 +1269,7 @@ struct VulkanApp {
             };
             vkCmdPipelineBarrier(cmd_buf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &image_ownership_barrier);
         }
-        err = vkEndCommandBuffer(cmd_buf);
-        assert(!err);
+        vkEndCommandBuffer(cmd_buf);
     }
     void begin_init_cmd() {
         VkCommandBufferBeginInfo cmd_buf_info = {

@@ -21,7 +21,7 @@ int main() {
         gl_ctx.make_current();
         glCreateVertexArrays(1, &vao_id);
         glCreateBuffers(1, &vbo_id);
-        glNamedBufferData(vbo_id, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+        glNamedBufferData(vbo_id, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
         glEnableVertexArrayAttrib(vao_id, 0);
         glVertexArrayAttribBinding(vao_id, 0, 0);
         glVertexArrayAttribFormat(vao_id, 0, 2, GL_FLOAT, GL_FALSE, 0 * sizeof(float));

@@ -17,7 +17,7 @@ int main() {
     vk_surface.select_format(vk_physical_device);
     uint32_t vk_queue_family_index = coel::vulkan::select_graphics_and_present_queue(vk_physical_device, vk_surface.handle);
     coel::vulkan::Device vk_device(vk_instance.handle, vk_physical_device, {vk_queue_family_index});
-    coel::vulkan::Swapchain vk_swapchain(vk_physical_device, vk_surface.handle, vk_surface.format, vk_device.handle, vk_queue_family_index);
+    coel::vulkan::Swapchain vk_swapchain(vk_physical_device, vk_surface, vk_device.handle, vk_queue_family_index);
     volkInitialize();
     volkLoadInstance(vk_instance.handle);
     volkLoadDevice(vk_device.handle);

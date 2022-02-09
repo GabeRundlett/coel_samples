@@ -1,7 +1,4 @@
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-
 #include "opengl.hpp"
 #include "vulkan.hpp"
 
@@ -11,8 +8,8 @@ void handle_events(AppState &state, WindowHandle w) {
         switch (event.type) {
         case cuiui::EventType::MouseMotionEvent: {
             auto &event_data = std::get<cuiui::MouseMotionEvent>(event.data);
-            state.mouse_x = static_cast<float>(event_data.pos_x) / static_cast<float>(w->size.x) * 2.0f - 1.0f;
-            state.mouse_y = static_cast<float>(event_data.pos_y) / static_cast<float>(w->size.y) * 2.0f - 1.0f;
+            state.mouse_x = static_cast<float>(event_data.pos.x) / static_cast<float>(w->size.x) * 2.0f - 1.0f;
+            state.mouse_y = static_cast<float>(event_data.pos.y) / static_cast<float>(w->size.y) * 2.0f - 1.0f;
         } break;
         case cuiui::EventType::MouseButtonEvent: {
             auto &event_data = std::get<cuiui::MouseButtonEvent>(event.data);

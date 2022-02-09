@@ -125,7 +125,7 @@ struct OpenGLApp {
             glUnmapNamedBuffer(scene_vbo_id);
         }
         glBindVertexArray(scene_vao_id);
-        glDrawArrays(GL_TRIANGLES, 0, scene_vertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(scene_vertices.size()));
 
         glUseProgram(ui_shader_program_id);
         glUniformBlockBinding(ui_shader_program_id, 0, 0);
@@ -133,7 +133,7 @@ struct OpenGLApp {
         glUniformBlockBinding(ui_shader_program_id, 0, 0);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_id);
         glBindVertexArray(ui_vao_id);
-        glDrawArrays(GL_TRIANGLES, 0, ui_vertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(ui_vertices.size()));
 
         gl_ctx.swap_buffers();
         return true;

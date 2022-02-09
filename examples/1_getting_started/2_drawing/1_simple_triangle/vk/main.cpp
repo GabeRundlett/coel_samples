@@ -17,7 +17,7 @@ int main() {
     vk_surface.select_format(vk_physical_device);
     uint32_t vk_queue_family_index = coel::vulkan::select_graphics_and_present_queue(vk_physical_device, vk_surface.handle);
     coel::vulkan::Device vk_device(vk_instance.handle, vk_physical_device, {vk_queue_family_index});
-    coel::vulkan::Swapchain vk_swapchain(vk_physical_device, vk_surface.handle, vk_surface.format, vk_device.handle, vk_queue_family_index);
+    coel::vulkan::Swapchain vk_swapchain(vk_physical_device, vk_surface, vk_device.handle, vk_queue_family_index);
     coel::vulkan::GraphicsPipeline vk_graphics_pipeline({
         .device_handle = vk_device.handle,
         .render_pass = vk_swapchain.render_pass,
@@ -43,13 +43,11 @@ int main() {
             },
         },
     });
+    auto vk_memory_properties = coel::vulkan::get_physical_device_memory_properties(vk_physical_device);
+    coel::vulkan::Buffer vbo(vk_device.handle, vk_memory_properties, vertices.data(), sizeof(vertices), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     volkInitialize();
     volkLoadInstance(vk_instance.handle);
     volkLoadDevice(vk_device.handle);
-    VkPhysicalDeviceMemoryProperties vk_memory_properties;
-    vkGetPhysicalDeviceMemoryProperties(vk_physical_device, &vk_memory_properties);
-    coel::vulkan::Buffer vbo(vk_device.handle, vk_memory_properties, vertex_data, sizeof(vertex_data), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-
     while (true) {
         auto w = ui.window({.id = "w"});
         if (w->should_close)

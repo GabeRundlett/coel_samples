@@ -5,6 +5,7 @@
         "glad",
         "glslang",
         "volk",
-        "stb"
+        "stb",
+        "assimp"
     ]
 }

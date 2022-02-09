@@ -30,6 +30,8 @@ function(add_example NAME)
     endif()
 endfunction()
 
+find_package(assimp CONFIG REQUIRED)
+
 find_package(glad CONFIG REQUIRED)
 
 find_path(STB_INCLUDE_DIRS "stb.h")
@@ -90,6 +92,16 @@ add_example(vk
         coel::coel
         stb::stb
 )
+add_example(agnostic
+    CONSOLE_APP
+    FOLDER 1_getting_started 2_drawing 3_shaders
+    LIBS
+        cuiui::cuiui
+        coel::coel
+        glad::glad
+        stb::stb
+        assimp::assimp
+)
 
 add_example(glvk
     CONSOLE_APP
@@ -106,4 +118,13 @@ add_example(raw_win32
     LIBS
         coel::coel
         cuiui::cuiui
+)
+add_example(voxels
+    CONSOLE_APP
+    FOLDER misc
+    LIBS
+        cuiui::cuiui
+        coel::coel
+        glad::glad
+        stb::stb
 )

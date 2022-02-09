@@ -5,61 +5,123 @@
         "minor": 21,
         "patch": 0
     },
-  "configurePresets": [
-    {
-      "name": "defaults",
-      "hidden": true,
-      "binaryDir": "${sourceDir}/.out/${presetName}",
-      "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "C:/dev/installed",
-        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/.out/${presetName}/bin",
-        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/.out/${presetName}/bin"
-      }
-    },
-    {
-      "name": "ninja_vcpkg_debug_Windows",
-      "displayName": "ninja_vcpkg_debug_Windows",
-      "inherits": "defaults",
-      "generator": "Ninja",
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "ninja_vcpkg_release_Windows",
-      "displayName": "ninja_vcpkg_release_Windows",
-      "inherits": "defaults",
-      "generator": "Ninja",
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "ninja_vcpkg_debug_Linux",
-      "displayName": "ninja_vcpkg_debug_Linux",
-      "inherits": "defaults",
-      "generator": "Ninja",
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    }
-  ]
+    "configurePresets": [
+        {
+            "name": "defaults",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/.out/${presetName}",
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "C:/dev/installed",
+                "CMAKE_MODULE_PATH": "${sourceDir}/cmake",
+                "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/.out/${presetName}/bin",
+                "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/.out/${presetName}/bin"
+            }
+        },
+        {
+            "name": "defaults_linux",
+            "hidden": true,
+            "inherits": "defaults",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "defaults_windows",
+            "hidden": true,
+            "inherits": "defaults",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "clang-x86_64-windows-msvc-debug",
+            "displayName": "clang-x86_64-windows-msvc-debug",
+            "inherits": "defaults_windows",
+            "generator": "Ninja",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/clang-x86_64-windows-msvc.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "clang-x86_64-windows-msvc-relwithdebinfo",
+            "displayName": "clang-x86_64-windows-msvc-relwithdebinfo",
+            "inherits": "defaults_windows",
+            "generator": "Ninja",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/clang-x86_64-windows-msvc.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "clang-x86_64-windows-msvc-release",
+            "displayName": "clang-x86_64-windows-msvc-release",
+            "inherits": "defaults_windows",
+            "generator": "Ninja",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/clang-x86_64-windows-msvc.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "cl-x86_64-windows-msvc-debug",
+            "displayName": "cl-x86_64-windows-msvc-debug",
+            "inherits": "defaults_windows",
+            "generator": "Ninja",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/cl-x86_64-windows-msvc.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "cl-x86_64-windows-msvc-relwithdebinfo",
+            "displayName": "cl-x86_64-windows-msvc-relwithdebinfo",
+            "inherits": "defaults_windows",
+            "generator": "Ninja",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/cl-x86_64-windows-msvc.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "cl-x86_64-windows-msvc-release",
+            "displayName": "cl-x86_64-windows-msvc-release",
+            "inherits": "defaults_windows",
+            "generator": "Ninja",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/cl-x86_64-windows-msvc.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "clang-x86_64-windows-msvc-debug",
+            "configurePreset": "clang-x86_64-windows-msvc-debug"
+        },
+        {
+            "name": "clang-x86_64-windows-msvc-relwithdebinfo",
+            "configurePreset": "clang-x86_64-windows-msvc-relwithdebinfo"
+        },
+        {
+            "name": "cl-x86_64-windows-msvc-release",
+            "configurePreset": "cl-x86_64-windows-msvc-release"
+        },
+        {
+            "name": "cl-x86_64-windows-msvc-debug",
+            "configurePreset": "cl-x86_64-windows-msvc-debug"
+        },
+        {
+            "name": "cl-x86_64-windows-msvc-relwithdebinfo",
+            "configurePreset": "cl-x86_64-windows-msvc-relwithdebinfo"
+        },
+        {
+            "name": "cl-x86_64-windows-msvc-release",
+            "configurePreset": "cl-x86_64-windows-msvc-release"
+        }
+    ]
 }

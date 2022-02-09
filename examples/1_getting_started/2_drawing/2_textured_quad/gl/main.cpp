@@ -2,28 +2,8 @@
 #include <cuiui/platform/defaults.hpp>
 #include <coel/opengl/core.hpp>
 #include <glad/glad.h>
-#include <iostream>
-#include <vector>
 #include "../0_common/data.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 namespace cuiui_default = cuiui::platform::defaults;
-
-struct Image {
-    std::vector<uint8_t> pixels;
-    int32_t size_x, size_y, channels;
-};
-
-Image load_image(const char *const filepath) {
-    Image result;
-    stbi_set_flip_vertically_on_load(false);
-    stbi_uc *data = stbi_load(filepath, &result.size_x, &result.size_y, &result.channels, 0);
-    result.pixels.resize(static_cast<size_t>(result.size_x * result.size_y * result.channels));
-    for (size_t i = 0; i < result.pixels.size(); ++i)
-        result.pixels[i] = data[i];
-    stbi_image_free(data);
-    return result;
-}
 
 int main() {
     cuiui_default::Context ui;
@@ -31,6 +11,7 @@ int main() {
     uint32_t vao_id = std::numeric_limits<uint32_t>::max();
     uint32_t vbo_id = std::numeric_limits<uint32_t>::max();
     uint32_t ibo_id = std::numeric_limits<uint32_t>::max();
+    uint32_t ubo_id = std::numeric_limits<uint32_t>::max();
     uint32_t tex_id = std::numeric_limits<uint32_t>::max();
     uint32_t shader_program_id = std::numeric_limits<uint32_t>::max();
     {
@@ -48,11 +29,13 @@ int main() {
         glNamedBufferData(ibo_id, sizeof(indices), indices.data(), GL_STATIC_DRAW);
         glEnableVertexArrayAttrib(vao_id, 0);
         glVertexArrayAttribBinding(vao_id, 0, 0);
-        glVertexArrayAttribFormat(vao_id, 0, 2, GL_FLOAT, GL_FALSE, 0 * sizeof(float));
+        glVertexArrayAttribFormat(vao_id, 0, 3, GL_FLOAT, GL_FALSE, 0 * sizeof(float));
         glEnableVertexArrayAttrib(vao_id, 1);
         glVertexArrayAttribBinding(vao_id, 1, 0);
-        glVertexArrayAttribFormat(vao_id, 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float));
-        glVertexArrayVertexBuffer(vao_id, 0, vbo_id, 0 * sizeof(float), sizeof(float) * 4);
+        glVertexArrayAttribFormat(vao_id, 1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+        glVertexArrayVertexBuffer(vao_id, 0, vbo_id, 0 * sizeof(float), sizeof(float) * 5);
+        glCreateBuffers(1, &ubo_id);
+        glNamedBufferData(ubo_id, sizeof(uniforms), &uniforms, GL_DYNAMIC_DRAW);
         auto attach_shader = [](auto program_id, auto shader_type, auto shader_code) {
             auto shader_id = glCreateShader(shader_type);
             glShaderSource(shader_id, 1, &shader_code, nullptr);
@@ -78,8 +61,6 @@ int main() {
         glDetachShader(shader_program_id, frag_shader_id);
         glDeleteShader(vert_shader_id);
         glDeleteShader(frag_shader_id);
-
-        Image image = load_image("examples/1_getting_started/2_drawing/2_textured_quad/0_common/test.png");
         int32_t internalformat = 0;
         uint32_t format = 0;
         uint32_t type = GL_UNSIGNED_BYTE;
@@ -95,20 +76,33 @@ int main() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
+
     while (true) {
         auto w = ui.window({.id = "w"});
         if (w->should_close)
             break;
         gl_ctx.make_current();
+        game_state.update(w);
+        auto &temp_uniforms = *reinterpret_cast<Uniforms*>(glMapNamedBuffer(ubo_id, GL_READ_WRITE));
+        temp_uniforms = {
+            .proj = scale(f32mat4::identity(), {static_cast<float>(w->size.y) / w->size.x, 1.0f, 0.01f}),
+            // .proj = perspective(radians(45.0f), static_cast<float>(w->size.x) / static_cast<float>(w->size.y), 0.01f, 100.0f),
+            .view = translate(rotate(rotate(uniforms.view, game_state.rot_y, {0, 1, 0}), game_state.rot_x, {1, 0, 0}), {game_state.pos_x, game_state.pos_y, game_state.pos_z}),
+        };
+        temp_uniforms.view = scale(temp_uniforms.view, {1, -1, 1});
+        glUnmapNamedBuffer(ubo_id);
+
         glViewport(0, 0, w->size.x, w->size.y);
         glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader_program_id);
+        glUniformBlockBinding(shader_program_id, 0, 0);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_id);
         glBindVertexArray(vao_id);
-        glActiveTexture(GL_TEXTURE0 + 0);
+        glActiveTexture(GL_TEXTURE0 + 1);
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
         gl_ctx.swap_buffers();
     }
     glDeleteProgram(shader_program_id);
