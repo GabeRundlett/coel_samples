@@ -6,6 +6,7 @@
         "glslang",
         "volk",
         "stb",
-        "assimp"
+        "assimp",
+        "glm"
     ]
 }

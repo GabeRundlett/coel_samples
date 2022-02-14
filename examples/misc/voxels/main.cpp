@@ -188,10 +188,13 @@ void raycast_scene() {
         auto r = raycast(
             f32vec2{storage.ray_pos[0], storage.ray_pos[1]},
             f32vec2{rot_dir[0], rot_dir[1]},
-            f32vec2{(f32)CHUNK_POS[0], (f32)CHUNK_POS[1]},
-            f32vec2{(f32)TILE_NX + CHUNK_POS[0], (f32)TILE_NY + CHUNK_POS[1]},
+            f32vec2{static_cast<f32>(CHUNK_POS[0]), static_cast<f32>(CHUNK_POS[1])},
+            f32vec2{static_cast<f32>(TILE_NX) + CHUNK_POS[0], static_cast<f32>(TILE_NY) + CHUNK_POS[1]},
             [](auto tile_i) {
-                return storage.tiles[(tile_i[0] - CHUNK_POS.x) + (tile_i[1] - CHUNK_POS.y) * TILE_NX];
+                using type = std::remove_reference_t<decltype(tile_i[0])>;
+                size_t x = static_cast<size_t>(tile_i[0] - static_cast<type>(CHUNK_POS.x));
+                size_t y = static_cast<size_t>(tile_i[1] - static_cast<type>(CHUNK_POS.y));
+                return storage.tiles[x + y * TILE_NX];
             });
         // for (size_t i = 0; i < r.total_steps; ++i)
         //     storage.points[i] = {(f32)r.points[i][0], (f32)r.points[i][1]};

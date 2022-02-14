@@ -299,8 +299,9 @@ constexpr auto raycast(vec_like auto &&ray_o, vec_like auto &&ray_d, vec_like au
     constexpr auto N = vec_validate_size<decltype(ray_o), decltype(ray_d), decltype(bound_min), decltype(bound_max)>();
     using T = vec_value_t<decltype(ray_o)>;
     auto in_bounds = [&bound_min, &bound_max](vec_like auto p) {
+        using type = std::remove_reference_t<decltype(p[0])>;
         for (size_t i = 0; i < N; ++i)
-            if (p[i] < bound_min[i] || p[i] > bound_max[i])
+            if (p[i] < static_cast<type>(bound_min[i]) || p[i] > static_cast<type>(bound_max[i]))
                 return false;
         return true;
     };
@@ -365,10 +366,10 @@ constexpr auto raycast(vec_like auto &&ray_o, vec_like auto &&ray_d, vec_like au
             // auto rel_axis_i = rel_axis_store_i + static_cast<size_t>(rel_axis_store_i >= axis_i);
             if (ray_d[axis_i] < 0) {
                 ray_step[axis_i] = -1;
-                to_side_dists[axis_i][rel_axis_store_i] = (ray_origin[axis_i] - result.tile_index[axis_i]) * delta_dists[axis_i][rel_axis_store_i];
+                to_side_dists[axis_i][rel_axis_store_i] = (ray_origin[axis_i] - static_cast<f32>(result.tile_index[axis_i])) * delta_dists[axis_i][rel_axis_store_i];
             } else {
                 ray_step[axis_i] = 1;
-                to_side_dists[axis_i][rel_axis_store_i] = (result.tile_index[axis_i] + 1 - ray_origin[axis_i]) * delta_dists[axis_i][rel_axis_store_i];
+                to_side_dists[axis_i][rel_axis_store_i] = (static_cast<f32>(result.tile_index[axis_i]) + 1 - ray_origin[axis_i]) * delta_dists[axis_i][rel_axis_store_i];
             }
         }
     }
@@ -450,7 +451,7 @@ struct SurfaceDetails {
 };
 constexpr auto get_surface_details(f32vec2 ray_origin, f32vec2 ray_dir, const RaycastResult<float, 2> &result) {
     SurfaceDetails surface;
-    surface.pos = {(f32)result.tile_index[0], (f32)result.tile_index[1]};
+    surface.pos = {static_cast<f32>(result.tile_index[0]), static_cast<f32>(result.tile_index[1])};
     float slope_xy = ray_dir[0] / ray_dir[1];
     float slope_yx = ray_dir[1] / ray_dir[0];
     if (result.hit_edge_i) {
