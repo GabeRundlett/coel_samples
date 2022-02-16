@@ -21,8 +21,8 @@ int main() {
     coel::vulkan::GraphicsPipeline vk_graphics_pipeline({
         .device_handle = vk_device.handle,
         .render_pass = vk_swapchain.render_pass,
-        .vert_src = vert_src,
-        .frag_src = frag_src,
+        .vert_src = glsl_vert_src,
+        .frag_src = glsl_frag_src,
         .bindings = {{
             .binding = 0,
             .stride = sizeof(float) * 5,
