@@ -31,8 +31,17 @@ namespace cuiui {
     };
 
     template <typename T>
-    struct ComponentIndex {
+    struct ComponentHandle {
         size_t i;
+    };
+
+    template <>
+    struct ComponentHandle<Window> {
+        size_t i;
+        size_t *depth;
+        ~ComponentHandle() {
+            --depth;
+        }
     };
 
     struct UiColors {
@@ -77,7 +86,7 @@ namespace cuiui {
         }
 
         template <typename T>
-        ComponentIndex<T> submit(const ComponentConfig<T> &config) {
+        ComponentHandle<T> submit(const ComponentConfig<T> &config) {
             auto find_component = std::ranges::find_if(components, [&](const auto &c) { return c.id == config.id; });
             size_t component_i;
             if (find_component != components.end()) {
@@ -91,7 +100,13 @@ namespace cuiui {
             auto &c_base = std::get<T>(c.base);
             c_base.submit(*this);
             c.is_stale = false;
-            return {.i = component_i};
+
+            if constexpr (std::same_as<T, Window>) {
+                ++depth;
+                return {.i = component_i, .depth = &depth};
+            } else {
+                return {.i = component_i};
+            }
         }
 
         template <typename T>
@@ -101,8 +116,8 @@ namespace cuiui {
         }
 
         template <typename T>
-        T &get(ComponentIndex<T> index) {
-            return std::get<T>(components[index.i].base);
+        T &get(ComponentHandle<T> c) {
+            return std::get<T>(components[c.i].base);
         }
 
         void render_frame() {
@@ -128,18 +143,6 @@ namespace cuiui {
         void handle_events(auto &&pred) {
             auto [first, last] = std::ranges::remove_if(events, pred);
             events.erase(first, last);
-        }
-
-        struct Scope {
-            BasicContext *ui_ctx;
-            ~Scope() {
-                --ui_ctx->depth;
-            }
-        };
-
-        Scope scope() {
-            ++depth;
-            return {.ui_ctx = this};
         }
     };
 

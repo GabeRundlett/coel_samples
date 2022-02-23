@@ -166,7 +166,6 @@ int main() {
             auto w = ui.submit<Window>({.id = "main_window"});
             if (ui.get(w).should_close)
                 break;
-            auto scope = ui.scope();
             // auto bg = ui.submit<Quad>({.id = "bg", .init{.pos{0.0f, 0.0f}, .col = ui.colors.background}});
             // ui.get(bg).size = ui.get(w).dim;
             ui_renderer.update(ui.get(w).dim);
