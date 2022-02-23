@@ -61,10 +61,7 @@ namespace cuiui::components {
 
         void render(auto &ui) {
             draw_outline(ui, rect);
-            ui.render_elements.push_back(RenderElement{
-                .rect = rect,
-                .col = hovered ? ui.colors.elem_background_highlight : ui.colors.elem_background,
-            });
+            draw_background(ui, rect, hovered || grabbed);
         }
     };
 } // namespace cuiui::components

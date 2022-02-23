@@ -61,7 +61,7 @@ struct Window {
                     return;
                 window_ptr->events.push_back(cuiui::MouseMotionEvent{.pos{static_cast<f32>(x), static_cast<f32>(y)}});
             });
-            glfwSetMouseButtonCallback(glfw_state.window_handle, [](GLFWwindow *glfw_window, i32 button, i32 action, i32 ) {
+            glfwSetMouseButtonCallback(glfw_state.window_handle, [](GLFWwindow *glfw_window, i32 button, i32 action, i32) {
                 auto *window_ptr = reinterpret_cast<::Window *>(glfwGetWindowUserPointer(glfw_window));
                 if (!window_ptr)
                     return;
@@ -157,10 +157,7 @@ struct Window {
                 .p1 = pos + dim,
             };
             cuiui::components::draw_outline(ui, rect);
-            ui.render_elements.push_back(cuiui::RenderElement{
-                .rect = rect,
-                .col = ui.colors.background,
-            });
+            cuiui::components::draw_background(ui, rect, false);
         } break;
         default: break;
         }

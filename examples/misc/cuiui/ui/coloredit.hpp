@@ -7,6 +7,8 @@ namespace cuiui::components {
         static inline float size_x = 200.0f;
         static inline float size_y = 200.0f;
         static inline float hue_sx = 10.0f;
+        static inline float grab_bar_width = 4.0f;
+        static inline float hue_grab_bar_width = 1.0f;
 
         f32rect rect;
         f32vec2 value = {0.0f, 0.0f};
@@ -77,28 +79,28 @@ namespace cuiui::components {
             if (grabbed) {
                 value = ui.mouse_pos;
 
-                if (value[0] < rect.p0[0])
-                    value[0] = rect.p0[0];
-                if (value[0] > rect.p0[0] + size_x)
-                    value[0] = rect.p0[0] + size_x;
+                if (value[0] < rect.p0[0] + grab_bar_width)
+                    value[0] = rect.p0[0] + grab_bar_width;
+                if (value[0] > rect.p0[0] - grab_bar_width + size_x)
+                    value[0] = rect.p0[0] - grab_bar_width + size_x;
 
-                if (value[1] < rect.p0[1])
-                    value[1] = rect.p0[1];
-                if (value[1] > rect.p0[1] + size_x)
-                    value[1] = rect.p0[1] + size_x;
+                if (value[1] < rect.p0[1] + grab_bar_width)
+                    value[1] = rect.p0[1] + grab_bar_width;
+                if (value[1] > rect.p0[1] - grab_bar_width + size_y)
+                    value[1] = rect.p0[1] - grab_bar_width + size_y;
 
-                value = value - rect.p0;
-                value[0] /= size_x;
-                value[1] /= size_y;
+                value = value - rect.p0 - f32vec2{grab_bar_width, grab_bar_width};
+                value[0] /= size_x - grab_bar_width * 2.0f;
+                value[1] /= size_y - grab_bar_width * 2.0f;
             }
 
             if (hue_grabbed) {
                 hue_value = ui.mouse_pos[1];
-                if (hue_value < rect.p0[1])
-                    hue_value = rect.p0[1];
-                if (hue_value > rect.p0[1] + size_y)
-                    hue_value = rect.p0[1] + size_y;
-                hue_value = (hue_value - rect.p0[1]) / size_y;
+                if (hue_value < rect.p0[1] + hue_grab_bar_width)
+                    hue_value = rect.p0[1] + hue_grab_bar_width;
+                if (hue_value > rect.p0[1] - hue_grab_bar_width + size_y)
+                    hue_value = rect.p0[1] - hue_grab_bar_width + size_y;
+                hue_value = (hue_value - rect.p0[1] - hue_grab_bar_width) / (size_y - hue_grab_bar_width * 2.0f);
             }
 
             auto hsv2rgb = [](auto c) {
@@ -122,12 +124,10 @@ namespace cuiui::components {
         }
 
         void render(auto &ui) {
-            draw_outline(ui, rect);
-            ui.render_elements.push_back(RenderElement{
-                .rect = rect,
-                .col = (hovered || grabbed) ? ui.colors.elem_background_highlight : ui.colors.elem_background,
-            });
-            const auto grab_bar_width = 4.0f;
+            auto outline_rect = rect;
+            outline_rect.p1[0] += hue_sx;
+            draw_outline(ui, outline_rect);
+            draw_background(ui, rect, hovered || grabbed);
             auto inside_rect = rect;
             inside_rect.p0 += f32vec2{grab_bar_width, grab_bar_width};
             inside_rect.p1 -= f32vec2{grab_bar_width, grab_bar_width};
@@ -168,20 +168,13 @@ namespace cuiui::components {
                 },
             });
 
-            ui.render_elements.push_back(RenderElement{
-                .rect = hue_rect,
-                .col = (hue_hovered || hue_grabbed) ? ui.colors.elem_background_highlight : ui.colors.elem_background,
-            });
-            const auto hue_grab_bar_width = 2.0f;
+            draw_background(ui, hue_rect, hue_hovered || hue_grabbed);
             const auto hue_ry = rect.p0[1] + hue_value * (size_y - hue_grab_bar_width * 2.0f) + hue_grab_bar_width;
             auto hue_grab_rect = f32rect{
                 .p0 = {hue_rect.p0[0], hue_ry - hue_grab_bar_width},
                 .p1 = {hue_rect.p1[0], hue_ry + hue_grab_bar_width},
             };
-            ui.render_elements.push_back(RenderElement{
-                .rect = hue_grab_rect,
-                .col = ui.colors.elem_foreground,
-            });
+            draw_foreground(ui, hue_grab_rect);
         }
     };
 } // namespace cuiui::components

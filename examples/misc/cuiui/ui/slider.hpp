@@ -6,6 +6,7 @@ namespace cuiui::components {
     struct Slider {
         static inline float size_x = 200.0f;
         static inline float size_y = 20.0f;
+        static inline f32 grab_bar_width = 1.0f;
 
         f32rect rect;
         float value = 0.0f;
@@ -61,31 +62,24 @@ namespace cuiui::components {
             });
             if (grabbed) {
                 value = ui.mouse_pos[0];
-                if (value < rect.p0[0])
-                    value = rect.p0[0];
-                if (value > rect.p0[0] + size_x)
-                    value = rect.p0[0] + size_x;
-                value = (value - rect.p0[0]) / size_x;
+                if (value < rect.p0[0] + grab_bar_width)
+                    value = rect.p0[0] + grab_bar_width;
+                if (value > rect.p0[0] - grab_bar_width + size_x)
+                    value = rect.p0[0] - grab_bar_width + size_x;
+                value = (value - rect.p0[0] - grab_bar_width) / (size_x - grab_bar_width * 2.0f);
             }
         }
 
         void render(auto &ui) {
             draw_outline(ui, rect);
-            ui.render_elements.push_back(RenderElement{
-                .rect = rect,
-                .col = (hovered || grabbed) ? ui.colors.elem_background_highlight : ui.colors.elem_background,
-            });
-            const auto grab_bar_width = 2.0f;
+            draw_background(ui, rect, hovered || grabbed);
             const auto rx = rect.p0[0] + value * (size_x - grab_bar_width * 2.0f) + grab_bar_width;
             auto grab_rect = f32rect{
                 .p0 = {rx - grab_bar_width, 0.0f + rect.p0[1]},
                 .p1 = {rx + grab_bar_width, 0.0f + size_y + rect.p0[1]},
             };
             // draw_outline(ui, grab_rect);
-            ui.render_elements.push_back(RenderElement{
-                .rect = grab_rect,
-                .col = ui.colors.elem_foreground,
-            });
+            draw_foreground(ui, grab_rect);
         }
     };
 } // namespace cuiui::components

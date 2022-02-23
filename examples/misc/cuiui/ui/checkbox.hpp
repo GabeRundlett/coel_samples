@@ -67,30 +67,12 @@ namespace cuiui::components {
 
         void render(auto &ui) {
             draw_outline(ui, rect);
-            ui.render_elements.push_back(RenderElement{
-                .rect = rect,
-                .col = hovered ? ui.colors.elem_background_highlight : ui.colors.elem_background,
-            });
+            draw_background(ui, rect, hovered);
             if (checked) {
                 auto inside_rect = rect;
-                inside_rect.p0 += f32vec2{4.0f, 4.0f};
-                inside_rect.p1 -= f32vec2{4.0f, 4.0f};
-                // draw_outline(ui, inside_rect);
-                // ui.render_elements.push_back(RenderElement{
-                //     .rect = inside_rect,
-                //     .col = ui.colors.elem_foreground,
-                // });
-                
-                ui.render_elements.push_back(RenderElement{
-                    .rect = inside_rect,
-                    .col = ui.colors.elem_foreground,
-                    .props = {
-                        2.0f,
-                        0.0f,
-                        inside_rect.p1[0] - inside_rect.p0[0],
-                        inside_rect.p1[1] - inside_rect.p0[1],
-                    },
-                });
+                inside_rect.p0 += f32vec2{2.0f, 2.0f};
+                inside_rect.p1 -= f32vec2{2.0f, 2.0f};
+                draw_foreground(ui, inside_rect);
             }
         }
     };

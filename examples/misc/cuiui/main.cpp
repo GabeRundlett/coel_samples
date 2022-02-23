@@ -87,7 +87,7 @@ struct UiRenderer {
                     o_col = vec4(v_col);
                     vec2 size = v_props.zw;
                     vec2 uv = v_tex * size;
-                    o_col.a = 1.0 - clamp((length(v_tex - 0.5) * size.x - (size.x * 0.5)) * 2.0 + 0.5, 0, 1);
+                    o_col.a = 1.0 - clamp((length(v_tex - 0.5) * size.x - (size.x * 0.5)) * 1.0 + 0.5, 0, 1);
                 } break;
                 case 3: {
                     // o_col = vec4(mix(vec3(1), vec3(1, 0, 0), v_tex.y) * v_tex.x, 1);
