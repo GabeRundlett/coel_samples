@@ -38,90 +38,27 @@
             }
         },
         {
-            "name": "clang-x86_64-windows-msvc-debug",
-            "displayName": "clang-x86_64-windows-msvc-debug",
+            "name": "clang-x86_64-pc-win32-msvc",
+            "displayName": "clang-x86_64-pc-win32-msvc",
             "inherits": "defaults_windows",
-            "generator": "Ninja",
-            "toolchainFile": "${sourceDir}/cmake/toolchain/clang-x86_64-windows-msvc.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
+            "generator": "Ninja Multi-Config",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/clang-x86_64-pc-win32-msvc.cmake"
         },
         {
-            "name": "clang-x86_64-windows-msvc-relwithdebinfo",
-            "displayName": "clang-x86_64-windows-msvc-relwithdebinfo",
+            "name": "cl-x86_64-pc-win32-msvc",
+            "displayName": "cl-x86_64-pc-win32-msvc",
             "inherits": "defaults_windows",
-            "generator": "Ninja",
-            "toolchainFile": "${sourceDir}/cmake/toolchain/clang-x86_64-windows-msvc.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-            }
-        },
-        {
-            "name": "clang-x86_64-windows-msvc-release",
-            "displayName": "clang-x86_64-windows-msvc-release",
-            "inherits": "defaults_windows",
-            "generator": "Ninja",
-            "toolchainFile": "${sourceDir}/cmake/toolchain/clang-x86_64-windows-msvc.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "cl-x86_64-windows-msvc-debug",
-            "displayName": "cl-x86_64-windows-msvc-debug",
-            "inherits": "defaults_windows",
-            "generator": "Ninja",
-            "toolchainFile": "${sourceDir}/cmake/toolchain/cl-x86_64-windows-msvc.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "cl-x86_64-windows-msvc-relwithdebinfo",
-            "displayName": "cl-x86_64-windows-msvc-relwithdebinfo",
-            "inherits": "defaults_windows",
-            "generator": "Ninja",
-            "toolchainFile": "${sourceDir}/cmake/toolchain/cl-x86_64-windows-msvc.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-            }
-        },
-        {
-            "name": "cl-x86_64-windows-msvc-release",
-            "displayName": "cl-x86_64-windows-msvc-release",
-            "inherits": "defaults_windows",
-            "generator": "Ninja",
-            "toolchainFile": "${sourceDir}/cmake/toolchain/cl-x86_64-windows-msvc.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+            "generator": "Ninja Multi-Config",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/cl-x86_64-pc-win32-msvc.cmake"
         }
     ],
     "buildPresets": [
-        {
-            "name": "clang-x86_64-windows-msvc-debug",
-            "configurePreset": "clang-x86_64-windows-msvc-debug"
-        },
-        {
-            "name": "clang-x86_64-windows-msvc-relwithdebinfo",
-            "configurePreset": "clang-x86_64-windows-msvc-relwithdebinfo"
-        },
-        {
-            "name": "clang-x86_64-windows-msvc-release",
-            "configurePreset": "clang-x86_64-windows-msvc-release"
-        },
-        {
-            "name": "cl-x86_64-windows-msvc-debug",
-            "configurePreset": "cl-x86_64-windows-msvc-debug"
-        },
-        {
-            "name": "cl-x86_64-windows-msvc-relwithdebinfo",
-            "configurePreset": "cl-x86_64-windows-msvc-relwithdebinfo"
-        },
-        {
-            "name": "cl-x86_64-windows-msvc-release",
-            "configurePreset": "cl-x86_64-windows-msvc-release"
-        }
+        { "name": "clang_debug", "configurePreset": "clang-x86_64-pc-win32-msvc", "configuration": "Debug" },
+        { "name": "clang_release", "configurePreset": "clang-x86_64-pc-win32-msvc", "configuration": "Release" },
+        { "name": "clang_relwithdebinfo", "configurePreset": "clang-x86_64-pc-win32-msvc", "configuration": "RelWithDebInfo" },
+        
+        { "name": "cl_debug", "configurePreset": "cl-x86_64-pc-win32-msvc", "configuration": "Debug" },
+        { "name": "cl_release", "configurePreset": "cl-x86_64-pc-win32-msvc", "configuration": "Release" },
+        { "name": "cl_relwithdebinfo", "configurePreset": "cl-x86_64-pc-win32-msvc", "configuration": "RelWithDebInfo" }
     ]
 }
