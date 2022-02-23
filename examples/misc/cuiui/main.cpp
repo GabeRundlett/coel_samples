@@ -110,8 +110,12 @@ struct UiRenderer {
     });
 
     UiRenderer() {
-        ui_mesh.set_data(nullptr, 12 * 4 * sizeof(f32) * 1000);
-        ui_mesh.use_ibo(nullptr, 6 * sizeof(u32) * 1000);
+        // TODO: make this vertex size thing optionally a part of the mesh's type
+        constexpr auto V_SIZE = (2 + 2 + 4 + 4) * sizeof(f32);
+        constexpr auto I_SIZE = sizeof(u32);
+        constexpr auto MAX_QUADS = 1000;
+        ui_mesh.set_data(nullptr, 4 * V_SIZE * MAX_QUADS);
+        ui_mesh.use_ibo(nullptr, 6 * I_SIZE * MAX_QUADS);
     }
 
     void update(f32vec2 viewport_size) {
