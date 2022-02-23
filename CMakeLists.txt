@@ -8,11 +8,9 @@ project(coel_test)
 # find_package(cuiui CONFIG REQUIRED)
 
 set(BUILD_SHARED_LIBS true)
-
 add_subdirectory(ext/coel)
-add_subdirectory(ext/cuiui)
-
 set_project_warnings(coel PUBLIC)
+add_subdirectory(ext/cuiui)
 set_project_warnings(cuiui INTERFACE)
 
 add_subdirectory(examples)

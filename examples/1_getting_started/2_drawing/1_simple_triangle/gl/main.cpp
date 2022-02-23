@@ -47,8 +47,8 @@ int main() {
             return shader_id;
         };
         shader_program_id = glCreateProgram();
-        auto vert_shader_id = attach_shader(shader_program_id, GL_VERTEX_SHADER, vert_src);
-        auto frag_shader_id = attach_shader(shader_program_id, GL_FRAGMENT_SHADER, frag_src);
+        auto vert_shader_id = attach_shader(shader_program_id, GL_VERTEX_SHADER, glsl_vert_src);
+        auto frag_shader_id = attach_shader(shader_program_id, GL_FRAGMENT_SHADER, glsl_frag_src);
         glLinkProgram(shader_program_id);
         glDetachShader(shader_program_id, vert_shader_id);
         glDetachShader(shader_program_id, frag_shader_id);

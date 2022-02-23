@@ -7,6 +7,9 @@
         "volk",
         "stb",
         "assimp",
-        "glm"
+        "glm",
+        "glfw3",
+        "cuiui",
+        "coel"
     ]
 }

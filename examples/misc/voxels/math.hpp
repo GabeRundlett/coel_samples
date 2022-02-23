@@ -373,6 +373,12 @@ constexpr auto raycast(vec_like auto &&ray_o, vec_like auto &&ray_d, vec_like au
             }
         }
     }
+
+    if (is_tile_blocking(result.tile_index)) {
+        result.hit_surface = false;
+        return RaycastResult<T, N>{};
+    }
+
     size_t max_steps = 0;
     for (size_t axis_i = 0; axis_i < N; ++axis_i)
         max_steps += static_cast<size_t>(bound_max[axis_i] - bound_min[axis_i]);

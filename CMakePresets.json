@@ -108,8 +108,8 @@
             "configurePreset": "clang-x86_64-windows-msvc-relwithdebinfo"
         },
         {
-            "name": "cl-x86_64-windows-msvc-release",
-            "configurePreset": "cl-x86_64-windows-msvc-release"
+            "name": "clang-x86_64-windows-msvc-release",
+            "configurePreset": "clang-x86_64-windows-msvc-release"
         },
         {
             "name": "cl-x86_64-windows-msvc-debug",

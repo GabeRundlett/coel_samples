@@ -1,8 +1,7 @@
 #pragma once
 
 #include <1_getting_started/2_drawing/0_common/render.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <cuiui/math/utility.hpp>
 
 struct GonzaScene {
     Shader shader = Shader(
@@ -37,7 +36,7 @@ struct GonzaScene {
     Uniform shader_view_mat = shader.uniform("view_mat");
     Uniform shader_modl_mat = shader.uniform("modl_mat");
 
-    StaticMesh mesh = StaticMesh("examples/0_assets/gonza/export/y-up/gonza.gltf");
+    StaticModel model = StaticModel("examples/0_assets/gonza/gonza.gltf");
 
     using clock = std::chrono::high_resolution_clock;
     clock::time_point start;
@@ -64,7 +63,7 @@ struct GonzaScene {
 
         shader_proj_mat.send_mat4(proj_mat);
         shader_view_mat.send_mat4(view_mat);
-        mesh.draw([&](const auto &mesh_info) {
+        model.draw([&](const auto &mesh_info) {
             shader_modl_mat.send_mat4(mesh_info.modl_mat);
         });
     }

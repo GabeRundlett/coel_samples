@@ -35,6 +35,8 @@ find_package(assimp CONFIG REQUIRED)
 
 find_package(glad CONFIG REQUIRED)
 
+find_package(glfw3 CONFIG REQUIRED)
+
 find_package(glm CONFIG REQUIRED)
 
 find_path(STB_INCLUDE_DIRS "stb.h")
@@ -130,4 +132,17 @@ add_example(FOLDER misc docking
         glad::glad
         stb::stb
         assimp::assimp
+)
+
+add_example(FOLDER misc cuiui
+    CONSOLE_APP
+    LIBS
+        glad::glad
+        glfw
+
+        stb::stb
+        assimp::assimp
+
+        cuiui::cuiui
+        coel::coel
 )

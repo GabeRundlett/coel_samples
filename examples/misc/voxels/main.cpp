@@ -16,13 +16,15 @@ namespace cuiui_default = cuiui::platform::defaults;
 const uint32_t TILE_NX = 16, TILE_NY = 16;
 i32vec2 CHUNK_POS = {-8, -8};
 
+constexpr size_t POINTS_N = 101;
+
 struct Storage {
     f32mat4 proj;
     f32mat4 view;
     f32vec2 mouse;
     f32vec2 ray_pos;
     f32vec2 ray_dir;
-    f32vec2 points[501];
+    f32vec2 points[POINTS_N];
     uint32_t points_n;
     uint32_t tiles[TILE_NX * TILE_NY];
 };
@@ -39,7 +41,7 @@ layout(std430, binding = 3) buffer Buf {
     vec2 mouse;
     vec2 ray_pos;
     vec2 ray_dir;
-    vec2 points[501];
+    vec2 points[101];
     uint points_n;
     uint tiles[TILE_NX * TILE_NY];
 };
@@ -61,7 +63,7 @@ layout(std430, binding = 3) buffer Buf {
     vec2 mouse;
     vec2 ray_pos;
     vec2 ray_dir;
-    vec2 points[501];
+    vec2 points[101];
     uint points_n;
     uint tiles[TILE_NX * TILE_NY];
 };
@@ -85,21 +87,27 @@ bool gridlines(float spacing, float thickness) {
     return f.x < nts || f.y < nts || f.x > its || f.y > its;
 }
 
+float point_sdf(vec2 p, float r) {
+    float d2 = dot(p - v_tex, p - v_tex);
+    return sqrt(d2) - r;
+}
+
 bool point(vec2 p, float r) {
     float d2 = dot(p - v_tex, p - v_tex);
     return d2 < r * r;
 }
 
+float line_sdf(vec2 p0, vec2 p1, float thickness) {
+    if (p0.x == p1.x && p0.y == p1.y) return -thickness;
+    vec2 p = v_tex;
+	vec2 ba = p1 - p0;
+	vec2 pa = p - p0;
+	float h = clamp(dot(pa, ba) / dot(ba, ba), 0., 1.);
+	return length(pa - h * ba) - thickness;
+}
+
 bool line(vec2 p0, vec2 p1, float thickness) {
-    vec2 uv = v_tex;
-    float a = abs(distance(p0, uv));
-    float b = abs(distance(p1, uv));
-    float c = abs(distance(p0, p1));
-    if (a >= c || b >= c)
-        return point(p0, thickness) || point(p1, thickness);
-    float p = (a + b + c) * 0.5;
-    float m = 2 / c * sqrt(p * (p - a) * (p - b) * (p - c) + 0.00000001);
-    return m < thickness;
+    return line_sdf(p0, p1, thickness) < 0.0f;
 }
 
 bool arrow(vec2 p0, vec2 p1, float thickness, float head_size, float pointiness) {
@@ -141,9 +149,7 @@ void main() {
     fill(axis(vec2(0, 0), 0.04), vec3(0.7, 0.3, 0.3));
     fill(point(mouse, 0.06), vec3(0, 0, 1));
     for (uint i = 0; i < points_n; i++)
-        overlay(arrow(ray_pos, points[i]-ray_pos, 0.01, 0.0, 1.0), vec3(0.12, 0.1, 0.05) * 2);
-    // for (uint i = 0; i < points_n; ++i)
-    //     fill(point(points[i], 0.06), vec3(1, 0, 0));
+        overlay(true, vec3(1.2, 1.0, 0.5) * max(-line_sdf(ray_pos, points[i], 0.5f), 0.0f) * 0.1f);
     overlay(point(ray_pos, 0.06), vec3(0.2, 0.3, 0.0));
     overlay(point(ray_pos + ray_dir, 0.06), vec3(0.2, 0.3, 0.0));
     overlay(cross(center, 0.1, 0.02), vec3(0.2));
@@ -181,9 +187,9 @@ float aspect;
 void raycast_scene() {
     storage.points_n = 0;
 
-    for (int i = 0; i < 501; ++i) {
+    for (size_t i = 0; i < POINTS_N; ++i) {
         auto rot_dir4 = f32vec4{storage.ray_dir[0], storage.ray_dir[1], 0, 0};
-        rot_dir4 = rot_dir4 * rotate(f32mat4::identity(), static_cast<f32>(i) * std::numbers::pi_v<float> * 2.0f / 501, f32vec3{0, 0, 1});
+        rot_dir4 = rot_dir4 * rotate(f32mat4::identity(), static_cast<f32>(i) * std::numbers::pi_v<float> * 2.0f / POINTS_N, f32vec3{0, 0, 1});
         auto rot_dir = normalize(f32vec2{rot_dir4[0], rot_dir4[1]});
         auto r = raycast(
             f32vec2{storage.ray_pos[0], storage.ray_pos[1]},
@@ -354,7 +360,7 @@ int main() {
         glDeleteShader(frag_shader_id);
     }
 
-    storage.ray_pos = {0.0f, 0.0f};
+    storage.ray_pos = {0.5f, 0.5f};
     storage.ray_dir = normalize(f32vec2{1.0f, 0.0f});
 
     storage.points[0] = {2.1f, 4.4f};
@@ -369,29 +375,11 @@ int main() {
         if (w->should_close)
             break;
 
-        auto screen_to_ndc = [&](f32vec2 p) {
-            const auto wsize = f32vec2{static_cast<float>(w->size.x), static_cast<float>(w->size.y)};
-            return p / wsize * f32vec2{2.0f, -2.0f} + f32vec2{-1.0f, 1.0f};
-        };
-        auto screen_to_view = [&](f32vec2 p) {
-            const auto wsize = f32vec2{static_cast<float>(w->size.x), static_cast<float>(w->size.y)};
-            const auto view_offset = f32vec2{view_pos.x / 2 / aspect - 0.5f * zoom, -view_pos.y / 2 - 0.5f * zoom};
-            const auto proj_offset = f32vec2{2.0f * aspect, 2.0f};
-            return (p * zoom / wsize + view_offset) * proj_offset;
-        };
-        aspect = static_cast<float>(w->size.x) / static_cast<float>(w->size.y);
-        mouse_ndc = screen_to_ndc(w->mouse_pos);
-        mouse_view = screen_to_view(w->mouse_pos);
-
-        raycast_scene();
-
         while (!w->events.empty()) {
             auto &event = w->events.front();
             switch (event.type) {
             case cuiui::EventType::KeyEvent: {
                 auto &e = std::get<cuiui::KeyEvent>(event.data);
-                // if (e.action == 0 && e.key == 'R')
-                //     raycast_scene();
                 if (e.action == 0 && e.key == 'F')
                     reset_view();
                 if (e.key == 16)
@@ -429,9 +417,24 @@ int main() {
             w->events.pop();
         }
 
+        auto screen_to_ndc = [&](f32vec2 p) {
+            const auto wsize = f32vec2{static_cast<float>(w->size.x), static_cast<float>(w->size.y)};
+            return p / wsize * f32vec2{2.0f, -2.0f} + f32vec2{-1.0f, 1.0f};
+        };
+        auto screen_to_view = [&](f32vec2 p) {
+            const auto wsize = f32vec2{static_cast<float>(w->size.x), static_cast<float>(w->size.y)};
+            const auto view_offset = f32vec2{view_pos.x / 2 / aspect - 0.5f * zoom, -view_pos.y / 2 - 0.5f * zoom};
+            const auto proj_offset = f32vec2{2.0f * aspect, 2.0f};
+            return (p * zoom / wsize + view_offset) * proj_offset;
+        };
+        aspect = static_cast<float>(w->size.x) / static_cast<float>(w->size.y);
+        mouse_ndc = screen_to_ndc(w->mouse_pos);
+        mouse_view = screen_to_view(w->mouse_pos);
+
         storage.proj = scale(f32mat4::identity(), {aspect, -1.0f, 1.0f});
         storage.view = scale(translate(f32mat4::identity(), {view_pos.x / aspect, view_pos.y, 0.0f}), {zoom, zoom, zoom});
         storage.mouse = {mouse_view.x, mouse_view.y};
+        raycast_scene();
 
         gl_ctx.make_current();
         auto &temp_storage = *reinterpret_cast<Storage *>(glMapNamedBuffer(sbo_id, GL_READ_WRITE));

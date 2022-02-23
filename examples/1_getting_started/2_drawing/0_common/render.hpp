@@ -1,23 +1,26 @@
 #pragma once
 
+#include "model.hpp"
+
 #include <array>
 #include <iostream>
 
 #include <glad/glad.h>
-
-#include "model.hpp"
+#include <coel/opengl/core.hpp>
 
 struct RenderPass {
     u32vec2 size;
     void begin() {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glViewport(0, 0, size.x, size.y);
         glClearColor(0.6f, 0.7f, 1.0f, 1.0f);
+        // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClearDepth(1.0f);
-        glDepthFunc(GL_LEQUAL);
-        // glClearDepth(0.0f);
-        // glDepthFunc(GL_GREATER);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
     }
 };
 
@@ -87,123 +90,199 @@ struct AttribDesc {
     u32 size, type;
 };
 
-struct StaticMesh {
-    struct MeshInfo {
-        uint32_t vao_id;
-        uint32_t vbo_id;
-        uint32_t ibo_id;
+struct Mesh {
+    uint32_t vao_id;
+    uint32_t vbo_id;
+    uint32_t ibo_id;
 
-        size_t vertex_size = 0;
-        size_t vertices_n = 0;
-        size_t indices_n = 0;
+    size_t vertex_size = 0;
+    size_t vertices_n = 0;
+    size_t indices_n = 0;
+    size_t max_vertices_n = 0;
+    size_t max_indices_n = 0;
 
-        f32mat4 modl_mat;
+    f32mat4 modl_mat;
 
-        MeshInfo(const std::initializer_list<AttribDesc> &attribs) {
-            glCreateVertexArrays(1, &vao_id);
-            glCreateBuffers(1, &vbo_id);
-            auto gl_attrib_type_size = [](u32 type) -> size_t {
-                switch (type) {
-                case GL_FLOAT: return sizeof(float);
-                default: return 1;
-                }
-            };
-            u32 index = 0;
-            size_t offset = 0;
-            for (const auto &attrib : attribs) {
-                glEnableVertexArrayAttrib(vao_id, index);
-                glVertexArrayAttribBinding(vao_id, index, 0);
-                glVertexArrayAttribFormat(vao_id, index, attrib.size, attrib.type, GL_FALSE, offset);
-                offset += gl_attrib_type_size(attrib.type) * attrib.size;
-                index++;
+    Mesh(const std::initializer_list<AttribDesc> &attribs) {
+        glCreateVertexArrays(1, &vao_id);
+        glCreateBuffers(1, &vbo_id);
+        auto gl_attrib_type_size = [](u32 type) -> size_t {
+            switch (type) {
+            case GL_FLOAT: return sizeof(float);
+            default: return 1;
             }
-            glVertexArrayVertexBuffer(vao_id, 0, vbo_id, 0, offset);
-            vertex_size = offset;
+        };
+        u32 index = 0;
+        u32 offset = 0;
+        for (const auto &attrib : attribs) {
+            glEnableVertexArrayAttrib(vao_id, index);
+            glVertexArrayAttribBinding(vao_id, index, 0);
+            glVertexArrayAttribFormat(vao_id, index, attrib.size, attrib.type, GL_FALSE, offset);
+            offset += static_cast<u32>(gl_attrib_type_size(attrib.type) * attrib.size);
+            index++;
         }
-
-        MeshInfo(const MeshInfo &) = delete;
-        MeshInfo &operator=(const MeshInfo &) = delete;
-
-        MeshInfo(MeshInfo &&other) {
-            *this = std::move(other);
-        }
-        MeshInfo &operator=(MeshInfo &&other) {
-            vao_id = other.vao_id;
-            vbo_id = other.vbo_id;
-            ibo_id = other.ibo_id;
-            vertex_size = other.vertex_size;
-            vertices_n = other.vertices_n;
-            indices_n = other.indices_n;
-            modl_mat = other.modl_mat;
-
-            other.vao_id = std::numeric_limits<uint32_t>::max();
-            other.vbo_id = std::numeric_limits<uint32_t>::max();
-            other.ibo_id = std::numeric_limits<uint32_t>::max();
-
-            return *this;
-        }
-
-        ~MeshInfo() {
-            glDeleteBuffers(1, &ibo_id);
-            glDeleteBuffers(1, &vbo_id);
-            glDeleteVertexArrays(1, &vao_id);
-        }
-
-        void set_index_data(const void *data, size_t size) {
-            indices_n = size / sizeof(uint32_t);
-            glNamedBufferData(ibo_id, size, data, GL_STATIC_DRAW);
-        }
-        void set_index_data(const auto &list) {
-            set_index_data(list.data(), list.size() * sizeof(list[0]));
-        }
-        void use_ibo(auto &&...args) {
-            glCreateBuffers(1, &ibo_id);
-            glVertexArrayElementBuffer(vao_id, ibo_id);
-
-            set_index_data(args...);
-        }
-
-        void set_data(const void *data, size_t size) {
-            vertices_n = size / vertex_size;
-            glNamedBufferData(vbo_id, size, data, GL_STATIC_DRAW);
-        }
-
-        void set_data(const auto &list) {
-            set_data(list.data(), list.size() * sizeof(list[0]));
-        }
-
-        void draw() const {
-            glBindVertexArray(vao_id);
-            if (indices_n == 0) {
-                glDrawArrays(GL_TRIANGLES, 0, vertices_n);
-            } else {
-                glDrawElements(GL_TRIANGLES, indices_n, GL_UNSIGNED_INT, nullptr);
-            }
-        }
-    };
-    std::vector<MeshInfo> infos;
-
-    StaticMesh(const std::initializer_list<AttribDesc> &attribs) {
-        infos.push_back(attribs);
+        glVertexArrayVertexBuffer(vao_id, 0, vbo_id, 0, offset);
+        vertex_size = offset;
     }
 
-    StaticMesh(const std::filesystem::path &path) {
+    Mesh(const Mesh &) = delete;
+    Mesh &operator=(const Mesh &) = delete;
+
+    Mesh(Mesh &&other) {
+        *this = std::move(other);
+    }
+    Mesh &operator=(Mesh &&other) {
+        vao_id = other.vao_id;
+        vbo_id = other.vbo_id;
+        ibo_id = other.ibo_id;
+        vertex_size = other.vertex_size;
+        vertices_n = other.vertices_n;
+        indices_n = other.indices_n;
+        max_vertices_n = other.max_vertices_n;
+        max_indices_n = other.max_indices_n;
+        modl_mat = other.modl_mat;
+        other.vao_id = std::numeric_limits<uint32_t>::max();
+        other.vbo_id = std::numeric_limits<uint32_t>::max();
+        other.ibo_id = std::numeric_limits<uint32_t>::max();
+        return *this;
+    }
+
+    ~Mesh() {
+        glDeleteBuffers(1, &ibo_id);
+        glDeleteBuffers(1, &vbo_id);
+        glDeleteVertexArrays(1, &vao_id);
+    }
+
+    void set_index_data(const void *data, size_t size, uint32_t usage) {
+        indices_n = size / sizeof(uint32_t);
+        max_indices_n = indices_n;
+        glNamedBufferData(ibo_id, size, data, usage);
+    }
+    void set_index_data(const auto &list, uint32_t usage) {
+        set_index_data(list.data(), list.size() * sizeof(list[0]), usage);
+    }
+    void use_ibo(auto &&...args) {
+        glCreateBuffers(1, &ibo_id);
+        glVertexArrayElementBuffer(vao_id, ibo_id);
+        set_index_data(args...);
+    }
+
+    void set_data(const void *data, size_t size, uint32_t usage) {
+        vertices_n = size / vertex_size;
+        max_vertices_n = vertices_n;
+        glNamedBufferData(vbo_id, size, data, usage);
+    }
+
+    void set_data(const auto &list, uint32_t usage) {
+        set_data(list.data(), list.size() * sizeof(list[0]), usage);
+    }
+
+    void draw() const {
+        glBindVertexArray(vao_id);
+        if (max_indices_n == 0) {
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<u32>(vertices_n));
+        } else {
+            glDrawElements(GL_TRIANGLES, static_cast<u32>(indices_n), GL_UNSIGNED_INT, nullptr);
+        }
+    }
+};
+
+struct StaticMesh : Mesh {
+    StaticMesh(const std::initializer_list<AttribDesc> &attribs) : Mesh(attribs) {}
+
+    void set_index_data(const void *data, size_t size) {
+        Mesh::set_index_data(data, size, static_cast<u32>(GL_STATIC_DRAW));
+    }
+    void set_index_data(const auto &list) {
+        Mesh::set_index_data(list.data(), list.size() * sizeof(list[0]), static_cast<u32>(GL_STATIC_DRAW));
+    }
+    void use_ibo(auto &&...args) {
+        Mesh::use_ibo(args..., static_cast<u32>(GL_STATIC_DRAW));
+    }
+
+    void set_data(const void *data, size_t size) {
+        Mesh::set_data(data, size, static_cast<u32>(GL_STATIC_DRAW));
+    }
+    void set_data(const auto &list) {
+        Mesh::set_data(list.data(), list.size() * sizeof(list[0]), static_cast<u32>(GL_STATIC_DRAW));
+    }
+};
+
+struct DynamicMesh : Mesh {
+    uint8_t *mapped_vbo;
+    uint8_t *mapped_ibo;
+
+    DynamicMesh(const std::initializer_list<AttribDesc> &attribs) : Mesh(attribs) {}
+
+    void set_index_data(const void *data, size_t size) {
+        Mesh::set_index_data(data, size, static_cast<u32>(GL_DYNAMIC_DRAW));
+    }
+    void set_index_data(const auto &list) {
+        Mesh::set_index_data(list.data(), list.size() * sizeof(list[0]), static_cast<u32>(GL_DYNAMIC_DRAW));
+    }
+    void use_ibo(auto &&...args) {
+        Mesh::use_ibo(args..., static_cast<u32>(GL_DYNAMIC_DRAW));
+    }
+
+    void set_data(const void *data, size_t size) {
+        Mesh::set_data(data, size, static_cast<u32>(GL_DYNAMIC_DRAW));
+    }
+    void set_data(const auto &list) {
+        Mesh::set_data(list.data(), list.size() * sizeof(list[0]), static_cast<u32>(GL_DYNAMIC_DRAW));
+    }
+
+    void begin() {
+        mapped_vbo = reinterpret_cast<uint8_t *>(glMapNamedBuffer(vbo_id, GL_READ_WRITE));
+        vertices_n = 0;
+        if (max_indices_n > 0) {
+            mapped_ibo = reinterpret_cast<uint8_t *>(glMapNamedBuffer(ibo_id, GL_READ_WRITE));
+            indices_n = 0;
+        }
+    }
+    void push_vertices(const auto &list) {
+        const auto data_size = list.size() * sizeof(list[0]);
+        std::memcpy(mapped_vbo, list.data(), data_size);
+        mapped_vbo += data_size;
+        vertices_n += data_size / vertex_size;
+    }
+    void push_indices(const auto &list) {
+        const auto data_size = list.size() * sizeof(list[0]);
+        std::memcpy(mapped_ibo, list.data(), data_size);
+        mapped_ibo += data_size;
+        indices_n += data_size / sizeof(u32);
+    }
+    void end() {
+        glUnmapNamedBuffer(vbo_id);
+        if (max_indices_n > 0) {
+            glUnmapNamedBuffer(ibo_id);
+        }
+    }
+};
+
+struct StaticModel {
+    std::vector<Mesh> meshes;
+
+    StaticModel(const std::initializer_list<AttribDesc> &attribs) {
+        meshes.push_back(attribs);
+    }
+
+    StaticModel(const std::filesystem::path &path) {
         auto assimp_model = AssimpModel(path);
         for (auto &node : assimp_model.source->nodes) {
-            infos.push_back({
+            meshes.push_back({
                 {.size = 3, .type = GL_FLOAT},
                 {.size = 3, .type = GL_FLOAT},
                 {.size = 2, .type = GL_FLOAT},
             });
-            auto &info = infos.back();
-            info.set_data(node.vertices);
-            info.use_ibo(node.indices);
-            info.modl_mat = node.modl_mat;
+            auto &m = meshes.back();
+            m.set_data(node.vertices, static_cast<u32>(GL_STATIC_DRAW));
+            m.use_ibo(node.indices, static_cast<u32>(GL_STATIC_DRAW));
+            m.modl_mat = node.modl_mat;
         }
     }
 
     void draw(const auto &fn) {
-        for (const auto &info : infos) {
+        for (const auto &info : meshes) {
             fn(info);
             info.draw();
         }

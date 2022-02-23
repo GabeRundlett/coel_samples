@@ -1,7 +1,7 @@
+#include "../0_common/scenes/all.hpp"
+
 #include <cuiui/cuiui.hpp>
 #include <cuiui/platform/defaults.hpp>
-#include <coel/opengl/core.hpp>
-#include "../0_common/scenes/all.hpp"
 namespace cuiui_default = cuiui::platform::defaults;
 
 int main() {
@@ -12,7 +12,7 @@ int main() {
         renderer.attach_to(*w);
     }
     auto blit_pass = BlitWindowPass();
-    auto scene = GonzaScene();
+    auto scene = SpinningCubeScene();
 
     while (true) {
         auto w = ui.window({.id = "w"});
@@ -20,7 +20,7 @@ int main() {
             break;
         
         blit_pass.begin(w);
-        scene.aspect = static_cast<f32>(w->dim.x) / static_cast<f32>(w->dim.y);
+        scene.aspect = static_cast<f32>(w->size.x) / static_cast<f32>(w->size.y);
         scene.draw();
 
         renderer.flush();
