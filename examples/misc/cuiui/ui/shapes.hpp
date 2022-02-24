@@ -18,7 +18,7 @@ namespace cuiui::components {
             col = config.col;
         }
 
-        void submit(auto &) {
+        void submit(auto &, const Config &) {
         }
 
         void update(auto &ui) {
@@ -60,7 +60,7 @@ namespace cuiui::components {
             col = config.col;
         }
 
-        void submit(auto &) {
+        void submit(auto &, const Config &) {
         }
 
         void update(auto &ui) {

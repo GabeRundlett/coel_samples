@@ -26,7 +26,7 @@ namespace cuiui::components {
             hovered = false;
         }
 
-        void submit(auto &ui) {
+        void submit(auto &ui, const Config &) {
             rect = f32rect{
                 .p0 = {0.0f + ui.pt[0], 0.0f + ui.pt[1]},
                 .p1 = {size_x + ui.pt[0], size_y + ui.pt[1]},

@@ -15,6 +15,7 @@
 #include "ui/coloredit.hpp"
 #include "ui/slider.hpp"
 #include "ui/shapes.hpp"
+#include "ui/text.hpp"
 
 namespace cuiui {
     template <typename T>
@@ -53,6 +54,7 @@ namespace cuiui {
         f32vec4 elem_background           = {0.12f * scl, 0.12f * scl, 0.12f * scl, 1.0f};
         f32vec4 elem_background_highlight = {0.15f * scl, 0.15f * scl, 0.15f * scl, 1.0f};
         f32vec4 elem_outline              = {0.00f * scl, 0.00f * scl, 0.00f * scl, 1.0f};
+        f32vec4 text                      = {1.0f, 1.0f, 1.0f, 1.0f};
         // clang-format on
     };
 
@@ -98,7 +100,7 @@ namespace cuiui {
             auto &c = components[component_i];
             component_indices.push_back(component_i);
             auto &c_base = std::get<T>(c.base);
-            c_base.submit(*this);
+            c_base.submit(*this, config.init);
             c.is_stale = false;
 
             if constexpr (std::same_as<T, Window>) {
@@ -154,6 +156,7 @@ namespace cuiui {
 
         components::Quad,
         components::Circle,
+        components::Text,
 
         Window>;
 } // namespace cuiui

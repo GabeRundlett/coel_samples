@@ -34,9 +34,9 @@ struct BlitWindowPass : RenderPass {
 struct Uniform {
     int32_t location;
 
-    // void send_mat4(const f32mat4 &m) {
-    //     glUniformMatrix4fv(location, 1, false, reinterpret_cast<const GLfloat *>(&m));
-    // }
+    void send_int(int i) {
+        glUniform1i(location, i);
+    }
     void send_mat4(const auto &m) {
         glUniformMatrix4fv(location, 1, false, reinterpret_cast<const GLfloat *>(&m));
     }
@@ -83,6 +83,29 @@ struct Shader {
 
     Uniform uniform(const char *const name) {
         return {.location = glGetUniformLocation(shader_program_id, name)};
+    }
+};
+
+struct Texture {
+    uint32_t id;
+
+    Texture(const u8 *bitmap_data, size_t sx, size_t sy) {
+        glGenTextures(1, &id);
+        glBindTexture(GL_TEXTURE_2D, id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei>(sx), static_cast<GLsizei>(sy), 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap_data);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+
+    ~Texture() {
+        glDeleteTextures(1, &id);
+    }
+
+    void bind_slot(u32 slot) {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D, id);
     }
 };
 

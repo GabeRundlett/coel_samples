@@ -1,12 +1,16 @@
 #pragma once
 
 #include <cuiui/math/types.hpp>
+#include <string>
+#include <string_view>
 
 namespace cuiui {
     struct RenderElement {
         f32rect rect;
         f32vec4 col;
         f32vec4 props;
+
+        std::string_view content;
     };
 } // namespace cuiui
 
@@ -76,5 +80,9 @@ namespace cuiui::components {
                 outline_rect.p1[1] - outline_rect.p0[1],
             },
         });
+    }
+    void draw_text(auto &ui, const auto &rect, const std::string &content) {
+        auto props = f32vec4{4.0f, 0.0f, 0.0f, 0.0f};
+        ui.render_elements.push_back(RenderElement{.rect = rect, .col = ui.colors.text, .props = props, .content = content});
     }
 } // namespace cuiui::components

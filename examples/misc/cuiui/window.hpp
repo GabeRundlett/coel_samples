@@ -93,7 +93,7 @@ struct Window {
         return *this;
     }
 
-    void submit(auto &ui) {
+    void submit(auto &ui, const Config &) {
         glfwPollEvents();
         switch (platform_state.index()) {
         case 0: {
