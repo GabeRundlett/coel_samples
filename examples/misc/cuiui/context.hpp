@@ -46,7 +46,7 @@ namespace cuiui {
     };
 
     struct UiColors {
-        static constexpr f32 scl = 5.0f;
+        static constexpr f32 scl = 2.0f;
         // clang-format off
         f32vec4 foreground                = {1.00f * scl, 0.00f * scl, 1.00f * scl, 1.0f};
         f32vec4 background                = {0.10f * scl, 0.10f * scl, 0.10f * scl, 1.0f};
@@ -54,7 +54,7 @@ namespace cuiui {
         f32vec4 elem_background           = {0.12f * scl, 0.12f * scl, 0.12f * scl, 1.0f};
         f32vec4 elem_background_highlight = {0.15f * scl, 0.15f * scl, 0.15f * scl, 1.0f};
         f32vec4 elem_outline              = {0.00f * scl, 0.00f * scl, 0.00f * scl, 1.0f};
-        f32vec4 text                      = {1.0f, 1.0f, 1.0f, 1.0f};
+        f32vec4 text                      = {0.8f, 0.8f, 0.8f, 1.0f};
         // clang-format on
     };
 

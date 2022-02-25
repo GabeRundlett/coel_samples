@@ -68,14 +68,14 @@ namespace cuiui::components {
     }
     void draw_outline(auto &ui, const auto &rect) {
         auto outline_rect = rect;
-        outline_rect.p0 -= f32vec2{10.0f, 10.0f};
-        outline_rect.p1 += f32vec2{10.0f, 10.0f};
+        outline_rect.p0 -= f32vec2{4.0f, 4.0f};
+        outline_rect.p1 += f32vec2{4.0f, 4.0f};
         ui.render_elements.push_back(RenderElement{
             .rect = outline_rect,
             .col = ui.colors.elem_outline,
             .props = {
                 1.0f,
-                10.0f,
+                4.0f,
                 outline_rect.p1[0] - outline_rect.p0[0],
                 outline_rect.p1[1] - outline_rect.p0[1],
             },

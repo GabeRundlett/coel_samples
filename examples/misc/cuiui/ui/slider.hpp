@@ -4,7 +4,7 @@
 
 namespace cuiui::components {
     struct Slider {
-        static inline float size_x = 200.0f;
+        static inline float size_x = 202.0f;
         static inline float size_y = 10.0f;
         static inline f32 grab_bar_width = 1.0f;
 

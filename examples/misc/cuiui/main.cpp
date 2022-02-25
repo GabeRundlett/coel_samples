@@ -163,6 +163,7 @@ constexpr auto font_to_texture_data() {
 
 constexpr auto font8x8_texture_data = font_to_texture_data();
 
+#if 1
 struct UiRenderer {
     Shader ui_shader = Shader(
         // clang-format off
@@ -298,7 +299,7 @@ struct UiRenderer {
                 for (size_t i = 0; i < e.content.size(); ++i) {
                     auto crect = f32rect{
                         .p0 = f32vec2{x, y},
-                        .p1 = f32vec2{x, y} + f32vec2{8.0f, 16.0f},
+                        .p1 = f32vec2{x, y} + f32vec2{8.0f, 8.0f},
                     };
                     x += 7.5f;
                     auto n = static_cast<u32>(ui_mesh.vertices_n);
@@ -348,6 +349,45 @@ struct UiRenderer {
         ui_mesh.draw();
     }
 };
+#else
+struct UiRenderer {
+    static constexpr size_t SX = 800 / 8, SY = 600 / 16;
+    static constexpr size_t BUF_SX = SX + 1, BUF_SY = SY;
+    std::array<char, BUF_SX * BUF_SY> output_buf;
+
+    UiRenderer() {
+    }
+
+    void render(auto &ui) {
+        auto shade = [](size_t xi, size_t yi, auto &ui) {
+            f32 val = 0.0f;
+            for (const auto &e : ui.render_elements) {
+                // if (e.props[0] != 0.0f)
+                //     continue;
+                // clang-format off
+                if (xi * 4 >= e.rect.p0[0] && yi * 4 * 2 >= e.rect.p0[1] &&
+                    xi * 4 >= e.rect.p0[0] && yi * 4 * 2 <  e.rect.p1[1] &&
+                    xi * 4 <  e.rect.p1[0] && yi * 4 * 2 >= e.rect.p0[1] &&
+                    xi * 4 <  e.rect.p1[0] && yi * 4 * 2 <  e.rect.p1[1]) {
+                    val += 0.2f;
+                }
+                // clang-format on
+            }
+            val = std::min(val, 1.0f);
+            return " .-:=+*#%@"[static_cast<i32>(val * 9)];
+        };
+
+        for (size_t yi = 0; yi < SY; ++yi) {
+            for (size_t xi = 0; xi < SX; ++xi)
+                output_buf[xi + yi * BUF_SX] = shade(xi, yi, ui);
+            output_buf[BUF_SX + yi * BUF_SX - 1] = '\n';
+        }
+        output_buf[BUF_SX * BUF_SY - 1] = '\0';
+
+        std::cout << "\x1b[0;0H" << output_buf.data();
+    }
+};
+#endif
 
 using namespace cuiui::components;
 
@@ -355,12 +395,19 @@ int main() {
     cuiui::Context ui{};
     size_t b_counter = 0;
     std::string counter_str = "";
+    std::string s0_str = "";
+    std::string s1_str = "";
 
     auto fmt_counter_str = [&]() {
         counter_str.clear();
         std::format_to(std::back_inserter(counter_str), "Counter = {}", b_counter);
     };
     fmt_counter_str();
+
+    auto fmt_slider_str = [](auto &str, f32 val) {
+        str.clear();
+        std::format_to(std::back_inserter(str), "Value = {}", val);
+    };
 
     ui.submit<Window>({.id = "main_window", .init{.dim{600, 600}}});
     UiRenderer ui_renderer;
@@ -377,14 +424,18 @@ int main() {
             ui.submit<Text>({.id = "tx0", .init{.content = "Hello, World!"}});
             auto cb = ui.submit<Checkbox>({.id = "cb0"});
             ui.submit<Window>({.id = "sw1", .init{.pos{100, 100}, .dim{250, 380}}});
-            ui.submit<Slider>({.id = "s0"});
+            auto s0 = ui.submit<Slider>({.id = "s0"});
+            fmt_slider_str(s0_str, ui.get(s0).value);
+            ui.submit<Text>({.id = "tx_s0", .init{.content = s0_str}});
             if (ui.get(cb).checked) {
                 ui.submit<Window>({.id = "sw0", .init{.pos{100, 100}, .dim{250, 380}}});
                 auto b = ui.submit<Button>({.id = "sb0"});
                 if (ui.get(b).pressed)
                     ui.get(cb).checked = false;
             }
-            ui.submit<Slider>({.id = "s1"});
+            auto s1 = ui.submit<Slider>({.id = "s1"});
+            fmt_slider_str(s1_str, ui.get(s1).value);
+            ui.submit<Text>({.id = "tx_s1", .init{.content = s1_str}});
             ui.submit<Checkbox>({.id = "cb1"});
             auto col = ui.submit<ColorEditRGB>({.id = "ce0"});
             clear_col = ui.get(col).rgb;
